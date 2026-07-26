@@ -12,6 +12,7 @@ from schemas.appointments import (
     AppointmentResponse
 )
 
+
 router = APIRouter(
     prefix="/appointments",
     tags=["Appointments"]
@@ -24,13 +25,13 @@ def create_appointment(
     db: Session = Depends(get_db)
 ):
 
-  service = db.query(Service).filter(
+    service = db.query(Service).filter(
         Service.id == appointment.service_id
     ).first()
 
 
     if not service:
-       raise HTTPException(
+        raise HTTPException(
             status_code=404,
             detail="Service not found"
         )
@@ -40,9 +41,8 @@ def create_appointment(
         Room.id == appointment.room_id
     ).first()
 
-    if not room:
-        raise HTTPException(
-            status_code=404,
-            detail="Room not found"
-        )
-
+if not room:
+    raise HTTPException(
+        status_code=404,
+        detail="Room not found"
+    )

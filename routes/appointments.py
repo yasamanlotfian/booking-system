@@ -61,7 +61,7 @@ def get_appointment(
 
 
 
-@router.put("/{appointment_id}", response_model=AppointmentResponse)
+@router.patch("/{appointment_id}", response_model=AppointmentResponse)
 def update_appointment(
     appointment_id: int,
     appointment_data: AppointmentCreate,
