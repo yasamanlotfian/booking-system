@@ -20,7 +20,7 @@ def create_appointment(
 ):
     new_appointment = Appointment(
         user_id=appointment.user_id,
-        room_id=appointment.room_id,
+        employee_id = appointment.employee_id,
         date=appointment.date,
         start_time=appointment.start_time,
         end_time=appointment.end_time
@@ -78,7 +78,7 @@ def update_appointment(
         )
 
     appointment.user_id = appointment_data.user_id
-    appointment.room_id = appointment_data.room_id
+    appointment.employee_id = appointment_data.employee_id
     appointment.date = appointment_data.date
     appointment.start_time = appointment_data.start_time
     appointment.end_time = appointment_data.end_time
