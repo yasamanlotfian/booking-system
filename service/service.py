@@ -2,30 +2,51 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from database import get_db
-
-from models.appointment import Appointment
-from models.employee import Employee
 from models.service import Service
-
-from schemas.appointments import (
-    AppointmentCreate,
-    AppointmentResponse
+from schemas.service import (
+    ServiceCreate,
+    ServiceResponse
 )
 
 router = APIRouter(
-    prefix="/appointments",
-    tags=["Appointments"]
+    prefix="/services",
+    tags=["Services"]
 )
 
 
-@router.post("/", response_model=AppointmentResponse)
-def create_appointment(
-    appointment: AppointmentCreate,
+@router.post("/", response_model=ServiceResponse)
+def create_service(
+    service: ServiceCreate,
     db: Session = Depends(get_db)
 ):
+    new_service = Service(
+        name=service.name,
+        description=service.description,
+        price=service.price,
+        duration=service.duration
+    )
 
+    db.add(new_service)
+    db.commit()
+    db.refresh(new_service)
+
+    return new_service
+
+
+@router.get("/", response_model=list[ServiceResponse])
+def get_services(
+    db: Session = Depends(get_db)
+):
+    return db.query(Service).all()
+
+
+@router.get("/{service_id}", response_model=ServiceResponse)
+def get_service(
+    service_id: int,
+    db: Session = Depends(get_db)
+):
     service = db.query(Service).filter(
-        Service.id == appointment.service_id
+        Service.id == service_id
     ).first()
 
     if not service:
@@ -34,26 +55,54 @@ def create_appointment(
             detail="Service not found"
         )
 
-    employee = db.query(Employee).filter(
-        Employee.id == appointment.employee_id
+    return service
+
+
+@router.patch("/{service_id}", response_model=ServiceResponse)
+def update_service(
+    service_id: int,
+    service_data: ServiceCreate,
+    db: Session = Depends(get_db)
+):
+    service = db.query(Service).filter(
+        Service.id == service_id
     ).first()
 
-    if not employee:
+    if not service:
         raise HTTPException(
             status_code=404,
-            detail="Employee not found"
+            detail="Service not found"
         )
 
-    new_appointment = Appointment(
-        user_id=appointment.user_id,
-        employee_id=appointment.employee_id,
-        service_id=appointment.service_id,
-        start_time=appointment.start_time,
-        end_time=appointment.end_time
-    )
+    service.name = service_data.name
+    service.description = service_data.description
+    service.price = service_data.price
+    service.duration = service_data.duration
 
-    db.add(new_appointment)
     db.commit()
-    db.refresh(new_appointment)
+    db.refresh(service)
 
-    return new_appointment
+    return service
+
+
+@router.delete("/{service_id}")
+def delete_service(
+    service_id: int,
+    db: Session = Depends(get_db)
+):
+    service = db.query(Service).filter(
+        Service.id == service_id
+    ).first()
+
+    if not service:
+        raise HTTPException(
+            status_code=404,
+            detail="Service not found"
+        )
+
+    db.delete(service)
+    db.commit()
+
+    return {
+        "message": "Service deleted successfully"
+    }
