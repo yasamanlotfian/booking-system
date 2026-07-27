@@ -2,10 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from database import get_db
-
 from models.event import Event
 from schemas.events import EventCreate, EventResponse
-
 
 router = APIRouter(
     prefix="/events",
@@ -13,6 +11,7 @@ router = APIRouter(
 )
 
 
+# Create Event
 @router.post("/", response_model=EventResponse)
 def create_event(
     event: EventCreate,
@@ -21,10 +20,9 @@ def create_event(
     new_event = Event(
         title=event.title,
         description=event.description,
-        date=event.date,
+        employee_id=event.employee_id,
         start_time=event.start_time,
-        end_time=event.end_time,
-        room_id=event.room_id
+        end_time=event.end_time
     )
 
     db.add(new_event)
@@ -34,15 +32,15 @@ def create_event(
     return new_event
 
 
+# Get All Events
 @router.get("/", response_model=list[EventResponse])
 def get_events(
     db: Session = Depends(get_db)
 ):
-    events = db.query(Event).all()
-
-    return events
+    return db.query(Event).all()
 
 
+# Get Event By ID
 @router.get("/{event_id}", response_model=EventResponse)
 def get_event(
     event_id: int,
@@ -61,6 +59,7 @@ def get_event(
     return event
 
 
+# Update Event
 @router.put("/{event_id}", response_model=EventResponse)
 def update_event(
     event_id: int,
@@ -79,10 +78,9 @@ def update_event(
 
     event.title = event_data.title
     event.description = event_data.description
-    event.date = event_data.date
+    event.employee_id = event_data.employee_id
     event.start_time = event_data.start_time
     event.end_time = event_data.end_time
-    event.room_id = event_data.room_id
 
     db.commit()
     db.refresh(event)
@@ -90,6 +88,7 @@ def update_event(
     return event
 
 
+# Delete Event
 @router.delete("/{event_id}")
 def delete_event(
     event_id: int,
