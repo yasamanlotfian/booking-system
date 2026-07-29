@@ -26,7 +26,6 @@ def create_appointment(
     # Check appointment conflict
     existing_appointment = db.query(Appointment).filter(
         Appointment.employee_id == appointment.employee_id,
-        Appointment.date == appointment.date,
         Appointment.start_time < appointment.end_time,
         Appointment.end_time > appointment.start_time
     ).first()
@@ -42,7 +41,6 @@ def create_appointment(
     new_appointment = Appointment(
         user_id=appointment.user_id,
         employee_id=appointment.employee_id,
-        date=appointment.date,
         start_time=appointment.start_time,
         end_time=appointment.end_time
     )
@@ -116,7 +114,6 @@ def update_appointment(
     conflict = db.query(Appointment).filter(
         Appointment.id != appointment_id,
         Appointment.employee_id == appointment_data.employee_id,
-        Appointment.date == appointment_data.date,
         Appointment.start_time < appointment_data.end_time,
         Appointment.end_time > appointment_data.start_time
     ).first()
@@ -131,7 +128,6 @@ def update_appointment(
 
     appointment.user_id = appointment_data.user_id
     appointment.employee_id = appointment_data.employee_id
-    appointment.date = appointment_data.date
     appointment.start_time = appointment_data.start_time
     appointment.end_time = appointment_data.end_time
 
