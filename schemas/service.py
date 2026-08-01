@@ -1,13 +1,13 @@
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class ServiceBase(BaseModel):
-    name: str
+    name: str = Field(..., min_length=1, max_length=100)
     description: Optional[str] = None
-    price: int
-    duration: int
+    price: int = Field(..., ge=0)
+    duration: int = Field(..., gt=0)
 
 
 class ServiceCreate(ServiceBase):
@@ -15,14 +15,13 @@ class ServiceCreate(ServiceBase):
 
 
 class ServiceUpdate(BaseModel):
-    name: Optional[str] = None
+    name: Optional[str] = Field(None, min_length=1, max_length=100)
     description: Optional[str] = None
-    price: Optional[int] = None
-    duration: Optional[int] = None
+    price: Optional[int] = Field(None, ge=0)
+    duration: Optional[int] = Field(None, gt=0)
 
 
 class ServiceResponse(ServiceBase):
     id: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
